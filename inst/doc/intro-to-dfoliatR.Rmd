@@ -1,0 +1,169 @@
+---
+title: "Introduction to dfoliatR"
+author: "Chris Guiterman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to dfoliatR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  fig.align = "center"
+)
+
+```
+
+### Installation
+
+`dfoliatR` is not currently on CRAN. To install `dfoliatR` use the `devtools` package:
+
+```R
+library(devtools)
+
+install_github("chguiterman/dfoliatR")
+```
+Once installed, `dfoliatR` can be called like any other R package
+
+```{r, echo=TRUE}
+library(dfoliatR)
+```
+
+### Data
+
+`dfoliatR` requires two independent datasets: 
+
+* Host data: Standardized ring-width series of one or more individual trees (not site series, and multiple cores per tree need to be averaged to the tree level). To average cores and obtain individual tree series, see dplr::treeMean, or use ARSTAN output files (.TRE) with the summary chronology for each tree.
+
+* Non-host or control data: Usually a standardized tree-ring chronology (site chronology, not individual tree series) from non-host tree species. Alternatively, an independent annually-resolved climate series.
+
+Both host and non-host data should be formatted in R to match the `dplR::rwl` object type. 
+
+Data are provided in `dfoliatR` to demonstrate some of the utilities of `dfoliatR`, courtesy of Dr. Ann Lynch. 
+
+The first is a collection of Douglas-fir trees sampled for a reconstruction of western spruce budworm. It is paired with a ponderosa pine non-host chronology from a nearby site.
+
+```{R, echo=TRUE, eval=FALSE}
+data(dmj_h)
+
+```
+
+The host and non-host objects are directly from `dplR` in the form of `rwl` objects:
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(dmj_h[1:10, 1:10])
+```
+
+
+```{R, echo=TRUE, eval=FALSE}
+data(dmj_nh)
+```
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(dmj_nh, 10))
+```
+
+
+The `dfoliatR` package also includes a second site for users to explore: 
+
+```R
+data(ef_h)
+
+data(ef_nh)
+```
+
+All data created and presented in this vignette is available through the package by the object names used here.
+
+### Performance
+
+Analyzing insect outbreak signals from tree rings in `dfoliatR` requires a two-step process.
+
+1. Identify defoliation events on host trees by removing the growth pattern of non-host trees. Host and non-host trees are presumed to respond similarly to climate, so this step produces individual tree-level series of what the two species do NOT share in common. 
+
+2. Composite host individual tree series to the site level to assess the scale of defoliation. Events recorded on more than a threshold number and/or percentage of trees (e.g., 25%) are considered outbreaks.
+
+To identify defoliation events, input the set of host tree series and the non-host chronology into the `defoliate_trees()` function. Some parameters regarding the length and severity of growth departure can be changed by the user. The parameter defaults follow those in OUTBREAK (negative departures for 8 or more years, at least one reaching -1.28 standard deviations, and allowing 1 positive excursion before and after the greatest departure). Definitions of the function parameters are provided with `?defoliate_trees`
+
+```{r, echo=TRUE}
+dmj_defol <- defoliate_trees(host_tree = dmj_h, nonhost_chron = dmj_nh, 
+      duration_years = 8, max_reduction = -1.28, list_output = FALSE)
+```
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(dmj_defol, 10))
+```
+
+The best way to evaluate the results of the call to `defoliate_trees` is to graph the resulting "defol" object:
+
+```{r, echo=TRUE}
+plot(dmj_defol)
+```
+
+Each horizontal line in the plot provides the measured time sequence for each tree. Defoliation events are shown as thicker line segments, with colors to indicate the relative severity of each event. Breakpoints to distinguish between severe, moderate, and minor defoliation levels can be set via the `breaks` parameter in `plot` or `plot_defol`. 
+
+Basic and informative tree-level statistics regarding the sample data and defoliation events are provided.
+
+```{r, echo=TRUE, eval=FALSE}
+defol_stats(dmj_defol)
+
+```
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(defol_stats(dmj_defol), 10))
+```
+
+It is important to note that `dfoliatR` distinguishes between a "defoliation event" that is recorded on individual trees and an "outbreak" that synchronously effected a proportion of trees. 
+
+Outbreak periods can be identified with the function `outbreak()`. In essence, this is a composite function that combines all trees provided in the "defol" object to assess the synchrony and scale of defoliation. Should enough trees record defoliation (regardless of the duration), it will be termed an "outbreak". Filtering parameters control the percent of trees in defoliation and minimum number of trees required to be considered an outbreak. 
+
+```{r, echo=TRUE}
+dmj_obr <- outbreak(dmj_defol, filter_perc = 25, filter_min_series = 3)
+```
+
+Running `outbreak` produces a new class of data frame, an "outbreak" object. 
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(dmj_obr, 10))
+```
+
+As with "defol" objects, it can be plotted directly, and summary statistics are available.
+
+```{r, echo=TRUE}
+plot_outbreak(dmj_obr)
+```
+
+```{r, echo=TRUE}
+dmj_obr_stats <- outbreak_stats(dmj_obr)
+```
+```{r, echo=TRUE, eval=FALSE}
+head(dmj_obr_stats)
+```
+```{r, echo=FALSE, results='asis'}
+knitr::kable(dmj_obr_stats)
+```
+
+
+The summary statistics for "outbreak" objects include each identified outbreak event as a row, with start/end years, duration, and other metrics used for analyses.
+
+One important metric to analyze is the return interval of outbreaks. Many researchers use the first year of the event as the point of reference. One can calculate return intervals for our DMJ site in this way via
+
+```{r, echo=TRUE}
+
+dmj_interv <- diff(dmj_obr_stats$start)
+
+# All intervals
+dmj_interv
+
+# Mean interval
+mean(dmj_interv)
+
+# Median interval
+median(dmj_interv)
+
+```
+
+
