@@ -7,15 +7,33 @@
 outbreak_stats(x)
 }
 \arguments{
-\item{x}{An outbreak object after running \code{\link[=outbreak]{outbreak()}}}
+\item{x}{An \link{obr} object after running \code{\link[=outbreak]{outbreak()}}}
 }
 \value{
-A data.frame with descriptive statistics for each outbreak event
-determined by \code{\link[=outbreak]{outbreak()}}, including start and end years, duration, the
-year with the most number of trees in the outbreak and its associated tree
-count, and the year with the maximum growth suppression with its associated
-"mean_ngsi" value.
+A data frame with descriptive statistics for each outbreak event
+determined by \code{\link[=outbreak]{outbreak()}}, including: \itemize{ \item{"start" -- first year
+of outbreak} \item{"end" -- last year of outbreak} \item{"duration" --
+length of outbreak (in years)} \item{"n_df_start" -- number of trees
+defoliated at the start} \item{"perc_df_start" -- percent of trees
+defoliated at the start} \item{"max_df_obr" -- maximum number of trees in
+the outbreak during a single year} \item{"yr_max_df" -- year with the
+maximum number of trees defoliated} \item{"yr_min_ngsi" -- year with the
+lowest mean normalized growth suppression index (NGSI)} \item{"min_gsi" --
+minimum growth suppression index} \item{"min_ngsi" -- minimum normalized
+gsi} }
 }
 \description{
-Outbreak statistics
+Summary statistics for inferred outbreaks
+}
+\note{
+Certain statistics will be set to \code{NA} for the final
+outbreak event if there was an ongoing defoliation event (in which
+\code{series_end_event = TRUE} in \code{\link[=defoliate_trees]{defoliate_trees()}}). This is because the end
+of the outbreak remains unknown, so statistics such as duration cannot be
+calculated. Statistics pertaining to the start of the event are provided.
+}
+\examples{
+data("dmj_obr")
+outbreak_stats(dmj_obr)
+
 }

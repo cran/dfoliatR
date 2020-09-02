@@ -5,17 +5,25 @@
 \title{Produce a stacked plot to present composited, site-level insect outbreak
 chronologies}
 \usage{
-plot_outbreak(x, disp_index = "mean_ngsi")
+plot_outbreak(x, disp_index = c("GSI", "NGSI"))
 }
 \arguments{
-\item{x}{an 'outbreak' object produced by \code{\link[=outbreak]{outbreak()}}}
+\item{x}{an 'obr' object produced by \code{\link[=outbreak]{outbreak()}}}
 
 \item{disp_index}{Identify the timeseries index to plot. Defaults to
-\code{mean_ngsi}, the average normalized growth suppression index for the
-site. The only other option is \code{mean_gsi}, the average growth
+\code{NGSI}, the average normalized growth suppression index for the
+site. The only other option is \code{GSI}, the average growth
 suppression index.}
 }
 \description{
 Produce a stacked plot to present composited, site-level insect outbreak
 chronologies
+}
+\examples{
+data(dmj_obr)
+plot_outbreak(dmj_obr)
+
+# Change middle panel display from the default "NGSI" to "GSI"
+plot_outbreak(dmj_obr, disp_index = "GSI")
+
 }
