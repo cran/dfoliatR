@@ -3,22 +3,23 @@
 #'[defoliate_trees()] is the starting point for most analyses of insect
 #'defoliation signals preserved in the growth patterns of trees. It requires
 #'individual-tree standardized measurements from potential host trees and a
-#'tree-ring chronology from a nearby non-host species.
-#'First, [defoliate_trees()]
-#'combines these tree-ring indices by calling [gsi()] to perform a
-#'"correction" of the host-tree indices to remove the climatic influences on
-#'tree growth as represented by the non-host chronology. This should isolate
-#'a disturbance-related signal. Second, [defoliate_trees()],
-#'runs [id_defoliation()], which completes a
-#'runs analyses to evaluate sequences of negative departures in the
-#'host tree growth series (`ngsi`)
-#'for potential defoliation events.
+#'tree-ring chronology from a nearby non-host species. First,
+#'[defoliate_trees()] combines these tree-ring indices by calling [gsi()] to
+#'perform a "correction" of the host-tree indices to remove the climatic
+#'influences on tree growth as represented by the non-host chronology. This
+#'should isolate a disturbance-related signal. Second, [defoliate_trees()], runs
+#'[id_defoliation()], which completes a runs analyses to evaluate sequences of
+#'negative departures in the host tree growth series (`ngsi`) for potential
+#'defoliation events.
 #'
 #'@param host_tree A `dplR::rwl` object containing the tree-level growth series
 #'  for all host trees to be compared to the non-host chronology.
 #'
 #'@param nonhost_chron A `dplR::rwl` object containing a single non-host
-#'  chronology.
+#'  chronology. If blank, defoliation events will be inferred on the host_tree
+#'  series as provided. It is incumbent on the user to ensure the host_tree
+#'  series are properly prepared for analyses when there is no nonhost_chron
+#'  provided.
 #'
 #'@inheritParams id_defoliation
 #'
@@ -38,6 +39,12 @@
 #'  require a long-form data frame identifiable as a [defol()] object. Selecting
 #'  `list_output = TRUE` will trigger errors in running other functions.
 #'
+#'@importFrom rlang .data :=
+#'@importFrom magrittr %>%
+#'@importFrom glue glue
+#'@importFrom tibble rownames_to_column remove_rownames column_to_rownames
+#'@importFrom stats na.omit
+#'
 #'@examples
 #'# Load host and non-host data
 #'data("dmj_h") # Host trees
@@ -47,15 +54,20 @@
 #'
 #'
 #'@export
-defoliate_trees <- function(host_tree, nonhost_chron, duration_years = 8,
-                            max_reduction = -1.28, bridge_events = FALSE,
-                            series_end_event = FALSE, list_output = FALSE) {
+defoliate_trees <- function(host_tree, nonhost_chron = NULL,
+                            duration_years = 8,
+                            max_reduction = -1.28,
+                            bridge_events = FALSE,
+                            series_end_event = FALSE,
+                            list_output = FALSE) {
+
+  nonhost_chron <- data.frame(nonhost_chron)
+
+  # If there is a nonhost chronology
   if (ncol(nonhost_chron) > 1) stop("nonhost_chron can only contain 1 series")
   if (max_reduction > 0) max_reduction <- max_reduction * -1
-  # To DO: Add provision that if only host series are given, no correction is
-  # made, but series are scanned for defol_status
+
   host_tree <- data.frame(host_tree)
-  nonhost_chron <- data.frame(nonhost_chron)
   nseries <- ncol(host_tree)
   tree_list <- lapply(seq_len(nseries), function(i) {
     input_series <-
@@ -64,7 +76,23 @@ defoliate_trees <- function(host_tree, nonhost_chron, duration_years = 8,
           host_tree[, i, drop = FALSE],
           nonhost_chron)
       )
-    corrected_series <- gsi(input_series)
+
+   #If there is no nonhost chronology
+    if (nrow(nonhost_chron) > 0) corrected_series <- gsi(input_series)
+    else corrected_series <- host_tree %>%
+      rownames_to_column(var = "year") %>%
+      select(.data$year, colnames(host_tree)[i]) %>%
+      na.omit() %>%
+      mutate(nonhost = NA,
+             nonhost_rescale = NA,
+             !!glue("{colnames(host_tree)[i]}_gsi") :=
+               .data[[colnames(host_tree)[i]]],
+             !!glue("{colnames(host_tree)[i]}_ngsi") :=
+               scale(.data[[glue("{colnames(host_tree)[i]}_gsi")]])[, 1]
+      ) %>%
+      remove_rownames() %>%
+      column_to_rownames(var = "year")
+
     defoliated_series <- id_defoliation(corrected_series,
                                         duration_years = duration_years,
                                         bridge_events = bridge_events,
@@ -135,10 +163,12 @@ outbreak <- function(x,
               num_defol = sum(.data$defol_status %in% defol_events),
               perc_defol = round(.data$num_defol / .data$samp_depth * 100, 1),
               num_max_defol = sum(.data$defol_status %in% "max_defol"),
-              perc_max_defol = round(.data$num_max_defol / .data$samp_depth * 100, 1)
+              perc_max_defol =
+                round(.data$num_max_defol / .data$samp_depth * 100, 1)
     )
   mean_gsi <- x %>%
-    summarize_at(c("mean_gsi" = quos(.data$gsi), "mean_ngsi" = quos(.data$ngsi)),
+    summarize_at(c("mean_gsi" = quos(.data$gsi),
+                   "mean_ngsi" = quos(.data$ngsi)),
                         ~ mean(., na.rm = TRUE) %>%
                           round(., 4))
   out <- inner_join(counts, mean_gsi, by = "year") %>%
@@ -153,8 +183,8 @@ outbreak <- function(x,
   if (any("series_end_defol" %in% x$defol_status)) {
     ev <- events_table(out$outbreak_status, "outbreak") %>%
       filter(.data$starts == max(.data$starts))
-    if ( all(((nrow(out) - ev$ends) < 3) &
-         (out[ev$ends : nrow(out), ]$num_defol > 0)) ) {
+    if (all(((nrow(out) - ev$ends) < 3) &
+         (out[ev$ends : nrow(out), ]$num_defol > 0))) {
       out[ev$starts : nrow(out), "outbreak_status"] <- "se_outbreak"
     }
   }

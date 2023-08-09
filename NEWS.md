@@ -1,3 +1,20 @@
+# dfoliatR v0.3.0
+
+* Updated `defoliated_trees()` to work without nonhost chronology #2
+  * Thanks for the contribution of @MaxenceMartin on this
+  * @chguiterman added a unit test, cleaned up a RCMD note, some linting,
+  Also updated the function description for this new option
+* Changed use of {vdiffr} in `testthat` files to be conditional
+  * {vdiffr} does not load on Apply M1 machines, and thanks to @lionel- 
+  for code example on how to fix the issue
+  https://github.com/lionel-/ggstance/commit/eac216f6
+* Removed Travis CI and implemented GitHub Actions
+  * Thanks to @brews for this helpful resource: https://deanattali.com/blog/migrating-travis-to-github/
+* New feature to allow users to change the y-axis label on the bottom tile of `plot_outbreak()`
+  * Thanks to Ann Lynch and Wojciech Kędziora for the suggestion. This should provide greater
+  flexibility for users that are not only looking at defoliation but other causes of growth suppression
+* Removed `ef_*` data objects in preference for `efk_*` objects
+
 # dfoliatR v0.2.0
 
 * Readme edits

@@ -2,18 +2,13 @@
 #'
 #' Western spruce budworm host series
 #'
-#' @format An `rwl` object with 15 tree-level series, standardized in ARSTAN.
-#'   Dates range from 1776-1987.
-"ef_h"
-
-#' East Fork Jemez River Douglas-fir
-#'
-#' Western spruce budworm host series
-#'
 #' @format An `rwl` object with 37 tree-level series, standardized in ARSTAN.
 #'   Dates range from 1776-1987.
 #'
-#' @source \url{https://esajournals.onlinelibrary.wiley.com/doi/10.2307/2937153}
+#' @references Swetnam, T.W., Lynch, A.M., 1993. Multicentury, Regional-Scale
+#' Patterns of Western Spruce Budworm Outbreaks. Ecological Monographs 63,
+#' 399–424. https://doi.org/10.2307/2937153
+
 "efk_h"
 
 #' Baca ponderosa pine chronology
@@ -23,23 +18,12 @@
 #' @format An `rwl` chronology object with 1 series, 1612-1987. Standardized in
 #'   ARSTAN.
 #'
-#' @source \url{https://esajournals.onlinelibrary.wiley.com/doi/10.2307/2937153}
+#' @references Swetnam, T.W., Lynch, A.M., 1993. Multicentury, Regional-Scale
+#' Patterns of Western Spruce Budworm Outbreaks. Ecological Monographs 63,
+#' 399–424. https://doi.org/10.2307/2937153
+#'
+#' @source  <https://www.ncei.noaa.gov/access/paleo-search/study/5068>
 "efk_nh"
-
-#' East Fork Jemez area ponderosa pine
-#'
-#' Non-host pair chronology for East Fork Douglas-fir `ef_h`
-#'
-#' @format An `rwl` chronology object with 1 series, 1612-1987. Standardized in
-#'   ARSTAN.
-"ef_nh"
-
-#' East Fork defol object
-#'
-#' Produced by running `defoliate_trees(ef_h, ef_nh, series_end_event = TRUE)`
-#'
-#' @format A `defol` object with 2500 rows and 5 columns
-"ef_defol"
 
 #' East Fork defol object
 #'
@@ -47,13 +31,6 @@
 #'
 #' @format A `defol` object with 5142 rows and 5 columns
 "efk_defol"
-
-#' East Fork outbreak object
-#'
-#' Produced by running `outbreak(ef_defol)`
-#'
-#' @format An `outbreak` object with 221 rows and 9 columns
-"ef_obr"
 
 #' East Fork outbreak object
 #'

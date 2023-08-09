@@ -12,94 +12,107 @@
 
 <meta name="author" content="Chris Guiterman" />
 
-<meta name="date" content="2020-09-02" />
+<meta name="date" content="2023-08-09" />
 
 <title>Introduction to dfoliatR</title>
 
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
   }
 });
 </script>
 
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
 
-<style type="text/css">code{white-space: pre;}</style>
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -108,13 +121,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -122,6 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 })();
 </script>
+
 
 
 
@@ -319,32 +340,59 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Introduction to dfoliatR</h1>
 <h4 class="author">Chris Guiterman</h4>
-<h4 class="date">2020-09-02</h4>
+<h4 class="date">2023-08-09</h4>
 
 
 
 <div id="installation" class="section level3">
 <h3>Installation</h3>
-<p><code>dfoliatR</code> is not currently on CRAN. To install <code>dfoliatR</code> use the <code>devtools</code> package:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(devtools)</span>
-<span id="cb1-2"><a href="#cb1-2"></a></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">install_github</span>(<span class="st">&quot;chguiterman/dfoliatR&quot;</span>)</span></code></pre></div>
-<p>Once installed, <code>dfoliatR</code> can be called like any other R package</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(dfoliatR)</span></code></pre></div>
+<p><code>dfoliatR</code> is not currently on CRAN. To install
+<code>dfoliatR</code> use the <code>devtools</code> package:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">install_github</span>(<span class="st">&quot;chguiterman/dfoliatR&quot;</span>)</span></code></pre></div>
+<p>Once installed, <code>dfoliatR</code> can be called like any other R
+package</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(dfoliatR)</span></code></pre></div>
 </div>
 <div id="data" class="section level3">
 <h3>Data</h3>
 <p><code>dfoliatR</code> requires two independent datasets:</p>
 <ul>
-<li><p>Host data: Standardized ring-width series of one or more individual trees (not site series, and multiple cores per tree need to be averaged to the tree level). To average cores and obtain individual tree series, see dplr::treeMean, or use ARSTAN output files (.TRE) with the summary chronology for each tree.</p></li>
-<li><p>Non-host or control data: Usually a standardized tree-ring chronology (site chronology, not individual tree series) from non-host tree species. Alternatively, an independent annually-resolved climate series.</p></li>
+<li><p>Host data: Standardized ring-width series of one or more
+individual trees (not site series, and multiple cores per tree need to
+be averaged to the tree level). To average cores and obtain individual
+tree series, see dplr::treeMean, or use ARSTAN output files (.TRE) with
+the summary chronology for each tree.</p></li>
+<li><p>Non-host or control data: Usually a standardized tree-ring
+chronology (site chronology, not individual tree series) from non-host
+tree species. Alternatively, an independent annually-resolved climate
+series.</p></li>
 </ul>
-<p>Both host and non-host data should be formatted in R to match the <code>dplR::rwl</code> object type.</p>
-<p>Data are provided in <code>dfoliatR</code> to demonstrate some of the utilities of <code>dfoliatR</code>, courtesy of Dr. Ann Lynch.</p>
-<p>The first is a collection of Douglas-fir trees sampled for a reconstruction of western spruce budworm. It is paired with a ponderosa pine non-host chronology from a nearby site.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">data</span>(dmj_h)</span></code></pre></div>
-<p>The host and non-host objects are directly from <code>dplR</code> in the form of <code>rwl</code> objects:</p>
+<p>Both host and non-host data should be formatted in R to match the
+<code>dplR::rwl</code> object type.</p>
+<p>Data are provided in <code>dfoliatR</code> to demonstrate some of the
+utilities of <code>dfoliatR</code>, courtesy of Dr. Ann Lynch.</p>
+<p>The first is a collection of Douglas-fir trees sampled for a
+reconstruction of western spruce budworm. It is paired with a ponderosa
+pine non-host chronology from a nearby site.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">data</span>(dmj_h)</span></code></pre></div>
+<p>The host and non-host objects are directly from <code>dplR</code> in
+the form of <code>rwl</code> objects:</p>
 <table>
+<colgroup>
+<col width="7%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="11%" />
+<col width="8%" />
+<col width="8%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
@@ -493,7 +541,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">data</span>(dmj_nh)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">data</span>(dmj_nh)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -544,22 +592,39 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>The <code>dfoliatR</code> package also includes a second site for users to explore:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">data</span>(ef_h)</span>
-<span id="cb5-2"><a href="#cb5-2"></a></span>
-<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">data</span>(ef_nh)</span></code></pre></div>
-<p>All data created and presented in this vignette is available through the package by the object names used here.</p>
+<p>The <code>dfoliatR</code> package also includes a second site for
+users to explore:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">data</span>(efk_h)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">data</span>(efk_nh)</span></code></pre></div>
+<p>All data created and presented in this vignette is available through
+the package by the object names used here.</p>
 </div>
 <div id="performance" class="section level3">
 <h3>Performance</h3>
-<p>Analyzing insect outbreak signals from tree rings in <code>dfoliatR</code> requires a two-step process.</p>
+<p>Analyzing insect outbreak signals from tree rings in
+<code>dfoliatR</code> requires a two-step process.</p>
 <ol style="list-style-type: decimal">
-<li><p>Identify defoliation events on host trees by removing the growth pattern of non-host trees. Host and non-host trees are presumed to respond similarly to climate, so this step produces individual tree-level series of what the two species do NOT share in common.</p></li>
-<li><p>Composite host individual tree series to the site level to assess the scale of defoliation. Events recorded on more than a threshold number and/or percentage of trees (e.g., 25%) are considered outbreaks.</p></li>
+<li><p>Identify defoliation events on host trees by removing the growth
+pattern of non-host trees. Host and non-host trees are presumed to
+respond similarly to climate, so this step produces individual
+tree-level series of what the two species do NOT share in
+common.</p></li>
+<li><p>Composite host individual tree series to the site level to assess
+the scale of defoliation. Events recorded on more than a threshold
+number and/or percentage of trees (e.g., 25%) are considered
+outbreaks.</p></li>
 </ol>
-<p>To identify defoliation events, input the set of host tree series and the non-host chronology into the <code>defoliate_trees()</code> function. Some parameters regarding the length and severity of growth departure can be changed by the user. The parameter defaults follow those in OUTBREAK (negative departures for 8 or more years, at least one reaching -1.28 standard deviations, and allowing 1 positive excursion before and after the greatest departure). Definitions of the function parameters are provided with <code>?defoliate_trees</code></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>dmj_defol &lt;-<span class="st"> </span><span class="kw">defoliate_trees</span>(<span class="dt">host_tree =</span> dmj_h, <span class="dt">nonhost_chron =</span> dmj_nh, </span>
-<span id="cb6-2"><a href="#cb6-2"></a>      <span class="dt">duration_years =</span> <span class="dv">8</span>, <span class="dt">max_reduction =</span> <span class="fl">-1.28</span>, <span class="dt">list_output =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<p>To identify defoliation events, input the set of host tree series and
+the non-host chronology into the <code>defoliate_trees()</code>
+function. Some parameters regarding the length and severity of growth
+departure can be changed by the user. The parameter defaults follow
+those in OUTBREAK (negative departures for 8 or more years, at least one
+reaching -1.28 standard deviations, and allowing 1 positive excursion
+before and after the greatest departure). Definitions of the function
+parameters are provided with <code>?defoliate_trees</code></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>dmj_defol <span class="ot">&lt;-</span> <span class="fu">defoliate_trees</span>(<span class="at">host_tree =</span> dmj_h, <span class="at">nonhost_chron =</span> dmj_nh, </span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>      <span class="at">duration_years =</span> <span class="dv">8</span>, <span class="at">max_reduction =</span> <span class="sc">-</span><span class="fl">1.28</span>, <span class="at">list_output =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -643,12 +708,20 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>The best way to evaluate the results of the call to <code>defoliate_trees</code> is to graph the resulting “defol” object:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">plot</span>(dmj_defol)</span></code></pre></div>
+<p>The best way to evaluate the results of the call to
+<code>defoliate_trees</code> is to graph the resulting “defol”
+object:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">plot</span>(dmj_defol)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
-<p>Each horizontal line in the plot provides the measured time sequence for each tree. Defoliation events are shown as thicker line segments, with colors to indicate the relative severity of each event. Breakpoints to distinguish between severe, moderate, and minor defoliation levels can be set via the <code>breaks</code> parameter in <code>plot</code> or <code>plot_defol</code>.</p>
-<p>Basic and informative tree-level statistics regarding the sample data and defoliation events are provided.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">defol_stats</span>(dmj_defol)</span></code></pre></div>
+<p>Each horizontal line in the plot provides the measured time sequence
+for each tree. Defoliation events are shown as thicker line segments,
+with colors to indicate the relative severity of each event. Breakpoints
+to distinguish between severe, moderate, and minor defoliation levels
+can be set via the <code>breaks</code> parameter in <code>plot</code> or
+<code>plot_defol</code>.</p>
+<p>Basic and informative tree-level statistics regarding the sample data
+and defoliation events are provided.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">defol_stats</span>(dmj_defol)</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -754,21 +827,31 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>It is important to note that <code>dfoliatR</code> distinguishes between a “defoliation event” that is recorded on individual trees and an “outbreak” that synchronously effected a proportion of trees.</p>
-<p>Outbreak periods can be identified with the function <code>outbreak()</code>. In essence, this is a composite function that combines all trees provided in the “defol” object to assess the synchrony and scale of defoliation. Should enough trees record defoliation (regardless of the duration), it will be termed an “outbreak”. Filtering parameters control the percent of trees in defoliation and minimum number of trees required to be considered an outbreak.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>dmj_obr &lt;-<span class="st"> </span><span class="kw">outbreak</span>(dmj_defol, <span class="dt">filter_perc =</span> <span class="dv">25</span>, <span class="dt">filter_min_series =</span> <span class="dv">3</span>)</span></code></pre></div>
-<p>Running <code>outbreak</code> produces a new class of data frame, an “outbreak” object.</p>
+<p>It is important to note that <code>dfoliatR</code> distinguishes
+between a “defoliation event” that is recorded on individual trees and
+an “outbreak” that synchronously effected a proportion of trees.</p>
+<p>Outbreak periods can be identified with the function
+<code>outbreak()</code>. In essence, this is a composite function that
+combines all trees provided in the “defol” object to assess the
+synchrony and scale of defoliation. Should enough trees record
+defoliation (regardless of the duration), it will be termed an
+“outbreak”. Filtering parameters control the percent of trees in
+defoliation and minimum number of trees required to be considered an
+outbreak.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>dmj_obr <span class="ot">&lt;-</span> <span class="fu">outbreak</span>(dmj_defol, <span class="at">filter_perc =</span> <span class="dv">25</span>, <span class="at">filter_min_series =</span> <span class="dv">3</span>)</span></code></pre></div>
+<p>Running <code>outbreak</code> produces a new class of data frame, an
+“outbreak” object.</p>
 <table>
 <colgroup>
-<col width="4%"></col>
-<col width="10%"></col>
-<col width="9%"></col>
-<col width="10%"></col>
-<col width="13%"></col>
-<col width="14%"></col>
-<col width="8%"></col>
-<col width="9%"></col>
-<col width="15%"></col>
+<col width="4%" />
+<col width="10%" />
+<col width="9%" />
+<col width="10%" />
+<col width="13%" />
+<col width="14%" />
+<col width="8%" />
+<col width="9%" />
+<col width="15%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -896,23 +979,24 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>As with “defol” objects, it can be plotted directly, and summary statistics are available.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">plot_outbreak</span>(dmj_obr)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>dmj_obr_stats &lt;-<span class="st"> </span><span class="kw">outbreak_stats</span>(dmj_obr)</span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">head</span>(dmj_obr_stats)</span></code></pre></div>
+<p>As with “defol” objects, it can be plotted directly, and summary
+statistics are available.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">plot_outbreak</span>(dmj_obr)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>dmj_obr_stats <span class="ot">&lt;-</span> <span class="fu">outbreak_stats</span>(dmj_obr)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">head</span>(dmj_obr_stats)</span></code></pre></div>
 <table style="width:100%;">
 <colgroup>
-<col width="6%"></col>
-<col width="5%"></col>
-<col width="9%"></col>
-<col width="11%"></col>
-<col width="14%"></col>
-<col width="11%"></col>
-<col width="10%"></col>
-<col width="12%"></col>
-<col width="8%"></col>
-<col width="9%"></col>
+<col width="6%" />
+<col width="5%" />
+<col width="9%" />
+<col width="11%" />
+<col width="14%" />
+<col width="11%" />
+<col width="10%" />
+<col width="12%" />
+<col width="8%" />
+<col width="9%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -1015,22 +1099,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </tr>
 </tbody>
 </table>
-<p>The summary statistics for “outbreak” objects include each identified outbreak event as a row, with start/end years, duration, and other metrics used for analyses.</p>
-<p>One important metric to analyze is the return interval of outbreaks. Many researchers use the first year of the event as the point of reference. One can calculate return intervals for our DMJ site in this way via</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a></span>
-<span id="cb13-2"><a href="#cb13-2"></a>dmj_interv &lt;-<span class="st"> </span><span class="kw">diff</span>(dmj_obr_stats<span class="op">$</span>start)</span>
-<span id="cb13-3"><a href="#cb13-3"></a></span>
-<span id="cb13-4"><a href="#cb13-4"></a><span class="co"># All intervals</span></span>
-<span id="cb13-5"><a href="#cb13-5"></a>dmj_interv</span>
-<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt; [1] 73 72 24 32 78 28</span></span>
-<span id="cb13-7"><a href="#cb13-7"></a></span>
-<span id="cb13-8"><a href="#cb13-8"></a><span class="co"># Mean interval</span></span>
-<span id="cb13-9"><a href="#cb13-9"></a><span class="kw">mean</span>(dmj_interv)</span>
-<span id="cb13-10"><a href="#cb13-10"></a><span class="co">#&gt; [1] 51.16667</span></span>
-<span id="cb13-11"><a href="#cb13-11"></a></span>
-<span id="cb13-12"><a href="#cb13-12"></a><span class="co"># Median interval</span></span>
-<span id="cb13-13"><a href="#cb13-13"></a><span class="kw">median</span>(dmj_interv)</span>
-<span id="cb13-14"><a href="#cb13-14"></a><span class="co">#&gt; [1] 52</span></span></code></pre></div>
+<p>The summary statistics for “outbreak” objects include each identified
+outbreak event as a row, with start/end years, duration, and other
+metrics used for analyses.</p>
+<p>One important metric to analyze is the return interval of outbreaks.
+Many researchers use the first year of the event as the point of
+reference. One can calculate return intervals for our DMJ site in this
+way via</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>dmj_interv <span class="ot">&lt;-</span> <span class="fu">diff</span>(dmj_obr_stats<span class="sc">$</span>start)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co"># All intervals</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>dmj_interv</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; [1] 73 72 24 32 78 28</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co"># Mean interval</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="fu">mean</span>(dmj_interv)</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; [1] 51.16667</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co"># Median interval</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="fu">median</span>(dmj_interv)</span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; [1] 52</span></span></code></pre></div>
 </div>
 
 
